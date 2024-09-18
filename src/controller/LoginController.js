@@ -26,7 +26,13 @@ class LoginController {
       expiresIn: '1d',
     });
 
-    return res.json({ user: { email: user.email }, token });
+    return res.json({ 
+			user: { 
+				name: user.name,
+				email: user.email 
+			}, 
+			token 
+		});
   }
 }
 

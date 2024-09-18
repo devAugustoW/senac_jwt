@@ -5,9 +5,8 @@ class UserController{
 
 	// cria usuário
 	async store(req, res){
-
 		// receber os dados da requisição
-		const { email, password } = req.body;
+		const { name, email, password } = req.body;
 
 		  // verificação para não criar o mesmo usuário duas vezes
       let user = await User.findOne({ email });
@@ -20,8 +19,11 @@ class UserController{
 				const hashedPassword  = await bcrypt.hash(password, 8);
 
 				// cria o usuário
-				user = await User.create({ email, password_hash: hashedPassword });
-
+				user = await User.create({ 
+					name,
+					email, 
+					password_hash: hashedPassword
+				});
 			}
 		return res.json(user);
 	}
@@ -30,10 +32,10 @@ class UserController{
 	async getUsers(req, res) {
     try {
       const users = await User.find(); 
-      res.json(users);
+			return res.status(200).json(users)
 
     } catch (err) {
-      res.status(500).json({ error: 'Erro ao buscar usuários.' });
+			return res.status(500).json({ error: 'Erro ao buscar usuários.' });
 			
     }
   }
@@ -41,30 +43,21 @@ class UserController{
 	// atualiza o email do usuário pelo ID
 	async updateUser(req, res) {
 		try {
-			const { email } = req.body; 
+			const { name, email } = req.body; 
       const userId = req.params.id;
 
-			// Verifica se o email foi fornecido
-			if (!email) {
-				return res.status(400).json({ error: 'O campo email é obrigatório.' });
-      }
+			// procura o usuário pelo ID
+			const user = await User.findById(userId);
 
-			// Procura o usuário pelo ID
-      const user = await User.findById(userId);
-
+			// astualiza apenas os campos especificados
+			if (name) user.name = name;
+			if (email) user.email = email;
 			
-			if (!user) {
-        return res.status(404).json({ error: 'Usuário não encontrado.' });
-      }
-
-			// Atualizar apenas o email
-      user.email = email;
-
-			// Salvar as alterações no banco de dados
+			// salva as alterações no banco de dados
 			await user.save();
 
-			return res.status(200).json({ message: 'Email atualizado com sucesso.', user });
-			
+			return res.status(200).json({ message: 'Usuário atualizado com sucesso.', user });
+
 		} catch (error) {
 			return res.status(500).json({ error: 'Falha ao atualizar o email do usuário.' });
 

@@ -14,6 +14,7 @@ const authMiddleware = async (req, res, next) => {
   }
 
   try {
+		console.log("Token recebido:", token);
     const decoded = jwt.verify(token, JWT_SECRET);
 
     const user = await User.findById(decoded.id);
@@ -23,6 +24,7 @@ const authMiddleware = async (req, res, next) => {
 
     }
 		
+		req.userId = user._id;
     req.user = user; 
     next(); 
 
