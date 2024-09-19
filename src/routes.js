@@ -17,5 +17,6 @@ routes.delete('/delete/:id', authMiddleware, UserController.delete);
 routes.post('/createPost', authMiddleware, PostController.store);
 routes.get('/posts', authMiddleware, PostController.getPosts)
 routes.put('/updatePost/:id', authMiddleware, PostController.updatePost);
+routes.delete('/deletePost/:id', authMiddleware, PostController.delete);
 
 export default routes;

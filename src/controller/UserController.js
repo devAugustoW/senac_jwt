@@ -4,28 +4,30 @@ import User from "../model/User";
 class UserController{
 
 	// cria usuário
-	async store(req, res){
-		// receber os dados da requisição
-		const { name, email, password } = req.body;
+	async store(req, res) {
+    try {
+      // recebe os dados da requisição
+      const { name, email, password } = req.body;
 
-		  // verificação para não criar o mesmo usuário duas vezes
+      // verifica para não criar o mesmo usuário duas vezes
       let user = await User.findOne({ email });
-      if(user){
-				return res.status(400).json({ error: 'Usuário já cadastrado.' });
+      if (user) {
+        return res.status(400).json({ error: 'Usuário já cadastrado.' });
+      } else {
+        // Criptografa a senha
+        const hashedPassword = await bcrypt.hash(password, 8);
 
-      } else{				
-
-				// Criptografa a senha
-				const hashedPassword  = await bcrypt.hash(password, 8);
-
-				// cria o usuário
-				user = await User.create({ 
-					name,
-					email, 
-					password_hash: hashedPassword
-				});
-			}
-		return res.json(user);
+        // cria o usuário
+        user = await User.create({
+          name,
+          email,
+          password_hash: hashedPassword
+        });
+      }
+      return res.json(user);
+    } catch (error) {
+      return res.status(500).json({ error: 'Erro ao criar usuário.' });
+    }
 	}
 
 	// resgata todos os usuários
@@ -49,7 +51,7 @@ class UserController{
 			// procura o usuário pelo ID
 			const user = await User.findById(userId);
 
-			// astualiza apenas os campos especificados
+			// atualiza apenas os campos especificados
 			if (name) user.name = name;
 			if (email) user.email = email;
 			

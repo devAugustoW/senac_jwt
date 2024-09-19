@@ -52,23 +52,22 @@ class PostController {
 
 	// edita um post específico pelo ID da postagem
 	async updatePost(req, res) {
-    const { title, content } = req.body;
-    const { id } = req.params; // ID do post a ser atualizado
-    const userId = req.userId; // ID do usuário autenticado
+     try {
+			const { title, content } = req.body;
+			const { id } = req.params; // ID do post a ser atualizado
+			const userId = req.userId; // ID do usuário autenticado
 
-    console.log('ID do post:', id);
-    console.log('ID do usuário autenticado:', userId);
-
-    try {
 			// Encontra o post pelo ID
 			const post = await Post.findById(id);
 			if (!post) {
 				return res.status(404).json({ error: 'Post não encontrado.' });
+
 			}
 
 			// Verifica se o usuário autenticado é o dono do post
 			if (post.user.toString() !== userId.toString()) {
 				return res.status(403).json({ error: 'Você não tem permissão para atualizar este post.' });
+
 			}
 
 			// Atualiza o post com os novos dados
@@ -79,10 +78,38 @@ class PostController {
 			return res.status(200).json(post);
 
     } catch (error) {
-			console.error("Erro ao atualizar o post:", error.message);
 			return res.status(500).json({ error: 'Erro ao atualizar o post.' });
+
     }
-}
+	}
+
+	// deleta um post específico pelo ID da postagem
+	async delete(req, res) {
+		try {
+			const { id } = req.params; // ID da postagem
+			const userId = req.userId; // ID do usuário autenticado
+
+			// Encontra o post pelo ID
+			const post = await Post.findById(id);
+			if (!post) {
+				return res.status(404).json({ error: 'Post não encontrado.' });
+
+			}
+
+			// Verifica se o usuário autenticado é o dono do post
+			if (post.user.toString() !== userId.toString()) {
+				return res.status(403).json({ error: 'Você não tem permissão para deletar este post.' });
+			}
+
+			// Remove o usuário do banco de dados
+			await Post.deleteOne({ _id: id });
+
+			return res.status(200).json({ message: 'Postagem removida com sucesso.' });
+			
+		} catch (error) {
+			return res.status(500).json({ error: 'Falha ao remover a postagem.' });
+		}
+	}
 }
 
 export default new PostController();
