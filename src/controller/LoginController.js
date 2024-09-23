@@ -8,6 +8,7 @@ dotenv.config();
 class LoginController {
   async login(req, res) {
     const { email, password } = req.body;
+		console.log('Requisição recebida:', req.body);
 
     // Verifica se o usuário existe
     const user = await User.findOne({ email });
